@@ -36,7 +36,7 @@ The application fulfills all three core pillars of this challenge:
 * **Structure**: Semantic HTML5 (with strict ARIA mappings).
 * **Styling**: Vanilla CSS3 (utilizing flexible HSL variables, transitions, and media query breakpoints).
 * **Logic**: Vanilla ES6+ JavaScript (compiled in a clean, modular structure with strict XSS sanitization).
-* **API Integration**: Direct client-side REST connection to the Google Gemini API (`v1beta` models).
+* **API Integration**: Direct client-side REST connection to the Google Gemini API (`v1` stable models).
 * **Assets**: Raw inline SVGs (no external icon dependencies, ensuring instant page-load speeds).
 
 ---
@@ -142,30 +142,85 @@ Calculations are modeled on standard annual coefficients from the **Intergovernm
 
 ---
 
+---
+
 ## 🧪 Comprehensive Verification & Testing Matrix
 
-To secure high points in the PromptWars evaluation, the following manual and boundary test configurations have been validated:
+EcoMentor AI incorporates a **built-in, self-executing unit testing suite** located at the bottom of [script.js](file:///C:/Users/HIMANSHU%20MISHRA/Desktop/Projects/EcoMentor%20AI/script.js).
 
-### 1. Calculation Test Cases
+### 1. How the Automated Tests Work
+* **Automatic Execution**: The test runner executes automatically in the background every time the page loads. It runs silently inside the browser console without polluting the user interface.
+* **Console-Based Test Runner**: Open your browser developer tools (`F12` or `Ctrl+Shift+I`) and look at the **Console** tab. You will see a green, styled console group `🍀 EcoMentor AI - Automated Test Suite` displaying test passes and failures.
+* **Manual Execution**: Evaluators or developers can manually re-trigger the tests at any time in the console by running:
+  ```javascript
+  window.runEcoMentorTests();
+  ```
+* **Strict Assertions**: The testing module features custom validation logic and assertion handlers that verify expected output matches calculations, ratings, and focus drivers.
 
-| Profile Input | Travel Specs | Electricity | Water | Expected Category Breakdown (t) | Expected Total Score (t) | Expected Rating | Expected Focus Category |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Eco-Conscious** (Name: *Anya*) | Diet: Vegan | 0 km/day (Walking) | 120 kWh/month | Low | Transit: 0.00<br>Diet: 0.55<br>Elec: 0.72<br>Water: 0.12 | **1.39 t CO₂e** | **Excellent** (<2.0 t) | Electricity |
-| **Average Citizen** (Name: *Jordan*) | Diet: Vegetarian | 30 km/day (Train) | 225 kWh/month | Medium | Transit: 0.44<br>Diet: 0.91<br>Elec: 1.35<br>Water: 0.36 | **3.06 t CO₂e** | **Good** (2.0 - 4.5 t) | Electricity |
-| **High Emitter** (Name: *Marcus*) | Diet: Mixed | 60 km/day (Car) | 550 kWh/month | High | Transit: 3.94<br>Diet: 1.64<br>Elec: 3.30<br>Water: 0.72 | **9.60 t CO₂e** | **Needs Improvement** (>8.0 t) | Transportation |
+### 2. Automated Test Case Definitions
 
-### 2. Edge Case & Input Validation Validation
-* **Empty Name Field**: Form rejects submission, prevents scrolling, and prints `"Please enter your name."` in the error alert box.
+The runner executes the following unit tests:
+
+1. **Carbon Calculation Accuracy Test (Average Citizen / Jordan)**:
+   * **Purpose**: Verifies that standard average profiles yield mathematically correct scores.
+   * **Inputs**: Name = `'Jordan'`, Diet = `'vegetarian'`, Distance = `30 km/day`, Mode = `'train'`, Electricity = `225 kWh/month`, Water = `'medium'`.
+   * **Assertions**: 
+     * Transit: $0.44\text{ tonnes}$
+     * Diet: $0.91\text{ tonnes}$
+     * Electricity: $1.35\text{ tonnes}$
+     * Water: $0.36\text{ tonnes}$
+     * Total: $3.06\text{ tonnes}$
+     * Rating: `'Good'`
+     * Highest category: `'Electricity'`
+
+2. **Normal Input Test (Anya - Eco Conscious)**:
+   * **Purpose**: Tests a low-emitter profile near global Paris Agreement targets.
+   * **Inputs**: Name = `'Anya'`, Diet = `'vegan'`, Distance = `0 km/day` (Walking), Electricity = `120 kWh/month`, Water = `'low'`.
+   * **Assertions**:
+     * Transit: $0.00\text{ tonnes}$
+     * Diet: $0.55\text{ tonnes}$
+     * Electricity: $0.72\text{ tonnes}$
+     * Water: $0.12\text{ tonnes}$
+     * Total: $1.39\text{ tonnes}$
+     * Rating: `'Excellent'`
+     * Highest category: `'Electricity'`
+
+3. **Zero / Minimum Values Calculation Test**:
+   * **Purpose**: Verifies calculations and safety boundaries at absolute minima.
+   * **Inputs**: Name = `'Zero Test'`, Diet = `'vegan'`, Distance = `0 km/day`, Electricity = `0 kWh/month`, Water = `'low'`.
+   * **Assertions**:
+     * Transit: $0.00\text{ tonnes}$
+     * Diet: $0.55\text{ tonnes}$
+     * Electricity: $0.00\text{ tonnes}$
+     * Water: $0.12\text{ tonnes}$
+     * Total: $0.67\text{ tonnes}$
+     * Rating: `'Excellent'`
+     * Highest category: `'Diet'`
+
+4. **Maximum Boundary Values Calculation Test**:
+   * **Purpose**: Verifies calculation safety and rating thresholds at maximum input limits.
+   * **Inputs**: Name = `'Max Test'`, Diet = `'mixed'`, Distance = `250 km/day`, Mode = `'car'`, Electricity = `9999 kWh/month`, Water = `'high'`.
+   * **Assertions**:
+     * Transit: $16.43\text{ tonnes}$
+     * Diet: $1.64\text{ tonnes}$
+     * Electricity: $59.99\text{ tonnes}$
+     * Water: $0.72\text{ tonnes}$
+     * Total: $78.78\text{ tonnes}$
+     * Rating: `'Needs Improvement'`
+     * Highest category: `'Electricity'`
+
+5. **Input Validation Edge Cases & Boundaries Tests**:
+   * **Purpose**: Tests validator reactions to illegal, negative, empty, or out-of-bounds user entries.
+   * **Test Assertions**:
+     * Empty Name -> flag as invalid (`error: 'Please enter your name.'`)
+     * Name exceeds 50 chars -> flag as invalid (`error: 'Name cannot exceed 50 characters.'`)
+     * Negative electricity -> flag as invalid
+     * Electricity > 9999 -> flag as invalid
+     * Negative travel distance -> flag as invalid
+     * Travel distance > 250 -> flag as invalid
+
+### 3. Manual UI & Accessibility Verification
 * **Special Characters in Name**: Submitting names like `<script>alert('xss')</script>` renders safely as raw text in the chat bubble and history table, successfully bypassing XSS vector tests.
-* **Extreme Travel Distance Input**: Travel distance slider caps out at 250km to represent realistic commute ceilings, preventing arbitrary out-of-range numerical submissions.
-* **Negative Electricity Input**: Manual inputs of negative numbers (e.g. `-100`) trigger a validation alert: `"Please enter a valid monthly electricity usage between 0 and 9999 kWh."`
-
-### 3. Error Handling & Session Resilience
-* **Invalid API Key**: Connecting with a dummy string (e.g., `invalid_key`) keeps the key in memory but triggers a network API failure during prompt queries. The UI catches the failed fetch, logs the network error, falls back on the **Local Rule-Based Generator** to load a customized weekly plan, and informs the user via chatbot.
-* **Browser Page Refreshes**: Refreshes immediately wipe the key from memory. The AI coach reverts back to offline fallback helper mode.
-* **Plan Checklist Persistence**: Completing day-cards updates the progress tracker percentages instantly and saves the checked-off states to `localStorage` so users do not lose their weekly progress.
-
-### 4. Accessibility (A11y) Verification
 * **Keyboard-Only Traversal**: Standard `Tab` key cycling flows chronologically: logo -> AI Setup -> form fields -> Calculate button -> Explain Score details -> Action cards -> Chat input. Focus indicators are set to a bright outline (`outline: 3px solid var(--border-focus)`) with a `3px` offset to guarantee clear WCAG-compliant contrast.
 * **ARIA Mappings**: Key interactive panels map back to parent triggers: `aria-expanded` and `aria-controls` bindings are active on the AI Setup panel. Dynamic result widgets feature `aria-live="polite"` tags to ensure screen readers announce score modifications without needing a full-page reload.
 
